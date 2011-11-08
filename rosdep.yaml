@@ -327,6 +327,8 @@ gtest:
   debian: libgtest-dev
   opensuse: gtest-devel 
   fedora: gtest-devel
+  arch: |
+    if ! pacman -Q gtest; then packer -S gtest; fi
   macports: google-test
   osxbrew:
     homebrew:
