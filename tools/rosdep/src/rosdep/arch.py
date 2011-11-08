@@ -32,14 +32,20 @@ from __future__ import with_statement
 from linux_helpers import *
 import os
 
+import roslib.os_detect
 import rosdep.base_rosdep
+import rosdep.installers
 
 ###### Arch SPECIALIZATION #########################
 
 def pacman_detect(p):
     return subprocess.call(['pacman', '-Q', p], stdout=subprocess.PIPE, stderr=subprocess.PIPE)    
 
-class Arch(rosdep.base_rosdep.RosdepBaseOS):
+class Arch(roslib.os_detect.Arch,rosdep.base_rosdep.RosdepBaseOS):
+    def __init__(self):
+        self.installers = {}
+        self.installers['pacman'] = rosdep.installers.PacmanInstaller
+        self.installers['default'] = rosdep.installers.PacmanInstaller
 
     def check_presence(self):
         filename = "/etc/arch-release"
@@ -48,20 +54,8 @@ class Arch(rosdep.base_rosdep.RosdepBaseOS):
         return False
 
     def get_version(self):
-        return ""
-        # arch didn't have a version parsing in cpp version
-        try:
-            filename = "/etc/issue"
-            if os.path.exists(filename):
-                with open(filename, 'r') as fh:
-                    os_list = fh.read().split()
-                if os_list[0] == "Linux" and os_list[1] == "Arch":
-                    return os_list[2]
-        except:
-            print "Arch failed to get version"
-            return False
-
-        return False
+        # arch has a rolling release
+        return "arch"
 
     def get_name(self):
         return "arch"
